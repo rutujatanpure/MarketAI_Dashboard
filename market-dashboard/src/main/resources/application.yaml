@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: market-dashboard
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+      auto-index-creation: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: market-group
+      auto-offset-reset: earliest
+    producer:
+      acks: all
+
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    org.springframework.kafka: INFO
+    org.springframework.data.mongodb: INFO
