@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dark background circle -->
+  <rect width="32" height="32" rx="8" fill="#0D1117"/>
+  
+  <!-- Candlestick chart bars (cyan) -->
+  <rect x="5" y="18" width="3" height="8" rx="1" fill="#00B4D8" opacity="0.6"/>
+  <rect x="5" y="15" width="3" height="2" rx="0.5" fill="#00B4D8" opacity="0.6"/>
+  <rect x="5" y="27" width="3" height="1" rx="0.5" fill="#00B4D8" opacity="0.6"/>
+
+  <rect x="10" y="12" width="3" height="10" rx="1" fill="#22C55E"/>
+  <rect x="10" y="9" width="3" height="2" rx="0.5" fill="#22C55E"/>
+  <rect x="10" y="23" width="3" height="2" rx="0.5" fill="#22C55E"/>
+
+  <rect x="15" y="16" width="3" height="7" rx="1" fill="#00B4D8"/>
+  <rect x="15" y="13" width="3" height="2" rx="0.5" fill="#00B4D8"/>
+  <rect x="15" y="24" width="3" height="1.5" rx="0.5" fill="#00B4D8"/>
+
+  <rect x="20" y="8" width="3" height="12" rx="1" fill="#22C55E"/>
+  <rect x="20" y="5" width="3" height="2" rx="0.5" fill="#22C55E"/>
+  <rect x="20" y="21" width="3" height="2" rx="0.5" fill="#22C55E"/>
+
+  <rect x="25" y="13" width="3" height="8" rx="1" fill="#00B4D8" opacity="0.8"/>
+  <rect x="25" y="10" width="3" height="2" rx="0.5" fill="#00B4D8" opacity="0.8"/>
+  <rect x="25" y="22" width="3" height="2" rx="0.5" fill="#00B4D8" opacity="0.8"/>
+</svg>
