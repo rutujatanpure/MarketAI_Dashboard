@@ -3,7 +3,7 @@
 *.yaml
 
 # Docker
-dockerfile
+Dockerfile
 docker-compose.yml
 
 # Node
@@ -27,3 +27,7 @@ out/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Spring Boot configs
+application.yaml
+application.yml
