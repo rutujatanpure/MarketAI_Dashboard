@@ -1,12 +1,11 @@
 package com.marketai.dashboard.model;
 
-import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,123 +15,71 @@ public class User {
     @Id
     private String id;
 
-    @NotBlank @Size(min = 3, max = 50)
+    @Indexed(unique = true)
     private String username;
 
-    @NotBlank @Email @Indexed(unique = true)
+    @Indexed(unique = true)
     private String email;
 
-    @NotBlank @Pattern(regexp = "\\d{10}") @Indexed(unique = true)
-    private String mobileNumber;
-
-    @NotBlank @Size(min = 6)
+    // SECURITY FIX: @JsonIgnore prevents password hash being returned to frontend
+    @JsonIgnore
     private String password;
 
-    @Transient
-    private String confirmPassword;
+    private String mobileNumber;
 
     private Role role = Role.USER;
+
     private boolean enabled = true;
-    private Instant createdAt = Instant.now();
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    // ── Watchlist & preferences (used by WatchlistService) ───────────────────
     private List<String> watchlist = new ArrayList<>();
-    private String currency = "USD";
+
+    private String currency = "INR";
+
     private boolean emailNotifications = true;
 
-    // Getters and Setters
+    // ── Constructors ──────────────────────────────────────────────────────────
+    public User() {}
 
-    public String getId() {
-        return id;
+    public User(String username, String email, String password) {
+        this.username  = username;
+        this.email     = email;
+        this.password  = password;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    // ── Getters & Setters ─────────────────────────────────────────────────────
+    public String getId()                     { return id; }
+    public void   setId(String id)            { this.id = id; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername()               { return username; }
+    public void   setUsername(String u)       { this.username = u; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getEmail()                  { return email; }
+    public void   setEmail(String e)          { this.email = e; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPassword()               { return password; }
+    public void   setPassword(String p)       { this.password = p; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getMobileNumber()           { return mobileNumber; }
+    public void   setMobileNumber(String m)   { this.mobileNumber = m; }
 
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
+    public Role   getRole()                   { return role; }
+    public void   setRole(Role r)             { this.role = r; }
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
+    public boolean isEnabled()                { return enabled; }
+    public void    setEnabled(boolean e)      { this.enabled = e; }
 
-    public String getPassword() {
-        return password;
-    }
+    public LocalDateTime getCreatedAt()       { return createdAt; }
+    public void setCreatedAt(LocalDateTime t) { this.createdAt = t; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public List<String> getWatchlist()              { return watchlist; }
+    public void         setWatchlist(List<String> w){ this.watchlist = w != null ? w : new ArrayList<>(); }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
+    public String getCurrency()               { return currency; }
+    public void   setCurrency(String c)       { this.currency = c; }
 
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public List<String> getWatchlist() {
-        return watchlist;
-    }
-
-    public void setWatchlist(List<String> watchlist) {
-        this.watchlist = watchlist;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public boolean isEmailNotifications() {
-        return emailNotifications;
-    }
-
-    public void setEmailNotifications(boolean emailNotifications) {
-        this.emailNotifications = emailNotifications;
-    }
+    public boolean isEmailNotifications()              { return emailNotifications; }
+    public void    setEmailNotifications(boolean en)   { this.emailNotifications = en; }
 }

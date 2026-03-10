@@ -9,6 +9,8 @@ import com.marketai.dashboard.model.User;
 import com.marketai.dashboard.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class AuthService {
@@ -27,11 +29,23 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email already registered. Please login."
+            );
+        }
+        if(userRepository.existsByUsername(request.getUsername())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username already taken."
+            );
         }
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Passwords do not match");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Passwords do not match."
+            );
         }
 
         User user = new User();

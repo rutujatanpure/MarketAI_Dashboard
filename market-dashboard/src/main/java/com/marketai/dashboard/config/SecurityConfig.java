@@ -1,9 +1,8 @@
 package com.marketai.dashboard.config;
 
-
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,7 +19,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity   // enables @PreAuthorize on controller methods
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -39,15 +38,52 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
+
+                        // ── MUST BE FIRST: allow all CORS pre-flight OPTIONS requests ─
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ── Public: auth endpoints ────────────────────────────────────
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // ── Public: websocket ─────────────────────────────────────────
                         .requestMatchers("/ws/**").permitAll()
-                        // Admin-only endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // All other endpoints require authentication
+                        .requestMatchers("/ws").permitAll()
+
+                        // ── Public: market data ───────────────────────────────────────
+                        .requestMatchers("/api/crypto/**").permitAll()
+                        .requestMatchers("/api/stocks/**").permitAll()
+                        .requestMatchers("/api/market/**").permitAll()
+
+                        // ── Public: analytics read-only ───────────────────────────────
+                        .requestMatchers("/api/indicators/**").permitAll()
+                        .requestMatchers("/api/risk/**").permitAll()
+                        .requestMatchers("/api/confluence/**").permitAll()
+                        .requestMatchers("/api/alerts/**").permitAll()
+                        .requestMatchers("/api/news/**").permitAll()
+                        .requestMatchers("/api/ai/latest").permitAll()
+
+                        // ── Public: backtest reads ────────────────────────────────────
+                        .requestMatchers("/api/backtest/all").permitAll()
+                        .requestMatchers("/api/backtest/system-accuracy").permitAll()
+                        .requestMatchers("/api/backtest/symbol/**").permitAll()
+
+                        // ── Actuator: health/info public ──────────────────────────────
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
+
+                        // ── Actuator: prometheus + rest → ADMIN only ──────────────────
+                        // FIX: using hasAuthority("ROLE_ADMIN") instead of hasRole("ADMIN")
+                        // because JwtFilter explicitly sets: new SimpleGrantedAuthority("ROLE_" + role)
+                        // hasRole("ADMIN") should also work but hasAuthority is explicit and unambiguous
+                        .requestMatchers("/actuator/**").hasAuthority("ROLE_ADMIN")
+
+                        // ── Admin API ─────────────────────────────────────────────────
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
+                        // ── Everything else: must be logged in ────────────────────────
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -58,13 +94,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",   // Vite dev server
-                "http://localhost:3000"    // optional CRA
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
