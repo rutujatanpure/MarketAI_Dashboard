@@ -52,11 +52,12 @@ kafka:
     auto-offset-reset: earliest
   producer:
     acks: all
+ kafka:
   topics:
-    cryptoPrices: crypto-prices-topic
-    stockPrices: stock-prices-topic
-    aiAnalysis: ai-analysis-topic
-    anomalyAlerts: anomaly-alerts-topic
+    crypto-prices: crypto-prices-topic
+    stock-prices: stock-prices-topic
+    ai-analysis: ai-analysis-topic
+    anomaly-alerts: anomaly-alerts-topic
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:3600000}
