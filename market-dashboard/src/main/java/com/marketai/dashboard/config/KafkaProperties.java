@@ -1,54 +1,47 @@
 package com.marketai.dashboard.config;
 
-import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.support.converter.StringJsonMessageConverter;
+
+import java.util.Map;
 
 @Configuration
-public class KafkaConfig {
+@ConfigurationProperties(prefix = "kafka")
+public class KafkaProperties {
 
-    private final KafkaProperties kafkaProperties;
+    private String bootstrapServers;
+    private Consumer consumer;
+    private Producer producer;
+    private Map<String, String> topics;
 
-    public KafkaConfig(KafkaProperties kafkaProperties) {
-        this.kafkaProperties = kafkaProperties;
+    public static class Consumer {
+        private String groupId;
+        private String autoOffsetReset;
+
+        public String getGroupId() { return groupId; }
+        public void setGroupId(String groupId) { this.groupId = groupId; }
+
+        public String getAutoOffsetReset() { return autoOffsetReset; }
+        public void setAutoOffsetReset(String autoOffsetReset) { this.autoOffsetReset = autoOffsetReset; }
     }
 
-    @Bean
-    public NewTopic cryptoPricesTopic() {
-        return TopicBuilder.name(kafkaProperties.getTopics().get("crypto-prices"))
-                .partitions(3)
-                .replicas(1)
-                .build();
+    public static class Producer {
+        private String acks;
+
+        public String getAcks() { return acks; }
+        public void setAcks(String acks) { this.acks = acks; }
     }
 
-    @Bean
-    public NewTopic stockPricesTopic() {
-        return TopicBuilder.name(kafkaProperties.getTopics().get("stock-prices"))
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
+    // Getters & Setters
+    public String getBootstrapServers() { return bootstrapServers; }
+    public void setBootstrapServers(String bootstrapServers) { this.bootstrapServers = bootstrapServers; }
 
-    @Bean
-    public NewTopic aiAnalysisTopic() {
-        return TopicBuilder.name(kafkaProperties.getTopics().get("ai-analysis"))
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
+    public Consumer getConsumer() { return consumer; }
+    public void setConsumer(Consumer consumer) { this.consumer = consumer; }
 
-    @Bean
-    public NewTopic anomalyAlertsTopic() {
-        return TopicBuilder.name(kafkaProperties.getTopics().get("anomaly-alerts"))
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
+    public Producer getProducer() { return producer; }
+    public void setProducer(Producer producer) { this.producer = producer; }
 
-    @Bean
-    public StringJsonMessageConverter jsonMessageConverter() {
-        return new StringJsonMessageConverter();
-    }
+    public Map<String, String> getTopics() { return topics; }
+    public void setTopics(Map<String, String> topics) { this.topics = topics; }
 }
