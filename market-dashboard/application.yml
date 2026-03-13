@@ -13,7 +13,7 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       ssl:
-        enabled: ${REDIS_SSL:false}
+        enabled: ${REDIS_SSL:true}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka-56d55c7-ritujatanpure-ee27.h.aivencloud.com:14880}
     consumer:
