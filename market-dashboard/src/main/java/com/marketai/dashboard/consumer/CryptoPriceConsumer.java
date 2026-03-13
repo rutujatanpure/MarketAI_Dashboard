@@ -75,7 +75,7 @@ public class CryptoPriceConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topics.crypto-prices}",
+            topics = "${spring.kafka.topics.crypto-prices}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
