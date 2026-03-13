@@ -6,7 +6,7 @@ import { apiService } from '../services/apiService'
 
 const PriceContext = createContext(null)
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
+const WS_URL = import.meta.env.VITE_WS_URL
 
 export function PriceProvider({ children }) {
   const { getToken, isAuth }     = useAuth()
