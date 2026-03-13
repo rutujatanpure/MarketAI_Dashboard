@@ -51,7 +51,7 @@ public class StockPriceConsumer {
     }
 
     @KafkaListener(
-            topics = "${kafka.topics.stock-prices}",
+        topics = "${spring.kafka.topics.stock-prices}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
