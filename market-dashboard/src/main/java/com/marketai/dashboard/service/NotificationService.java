@@ -6,22 +6,16 @@ import com.marketai.dashboard.repository.AlertRepository;
 import com.marketai.dashboard.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
-/**
- * Sends email notifications for market anomalies.
- * Notifies all users who have emailNotifications = true
- * and have the symbol in their watchlist.
- */
 @Service
 public class NotificationService {
-
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
     @Value("${spring.mail.username:}")
@@ -31,7 +25,7 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final AlertRepository alertRepository;
 
-    public NotificationService(JavaMailSender mailSender,
+    public NotificationService(@Autowired(required = false) JavaMailSender mailSender,
                                UserRepository userRepository,
                                AlertRepository alertRepository) {
         this.mailSender = mailSender;
@@ -39,28 +33,25 @@ public class NotificationService {
         this.alertRepository = alertRepository;
     }
 
-    /**
-     * Async — doesn't block the Kafka consumer pipeline.
-     * Only emails users who watch this symbol.
-     */
     @Async("taskExecutor")
     public void sendAnomalyEmailAsync(AlertNotification alert) {
+        if (mailSender == null) {
+            log.warn("⚠️ JavaMailSender not configured — skipping email for {}", alert.getSymbol());
+            return;
+        }
         if (fromEmail == null || fromEmail.isBlank()) {
             log.warn("⚠️ Email not configured — skipping notification for {}", alert.getSymbol());
             return;
         }
-
         List<User> usersToNotify = userRepository.findAll().stream()
                 .filter(User::isEnabled)
                 .filter(User::isEmailNotifications)
                 .filter(u -> u.getWatchlist().contains(alert.getSymbol()))
                 .toList();
-
         if (usersToNotify.isEmpty()) {
             log.debug("📭 No users watching {} — skipping email", alert.getSymbol());
             return;
         }
-
         for (User user : usersToNotify) {
             try {
                 sendEmail(user.getEmail(), alert);
@@ -88,9 +79,6 @@ public class NotificationService {
                 Price:   $%.2f
                 Change:  %.2f%%
                 Time:    %s
-                
-                Log in to view full analysis:
-                http://localhost:5173/dashboard
                 
                 — Market Dashboard Team
                 """,
