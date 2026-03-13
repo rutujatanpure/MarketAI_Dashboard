@@ -1,9 +1,7 @@
 package com.marketai.dashboard.config;
 
 import jakarta.annotation.PostConstruct;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,6 @@ public class KafkaListenerConfig {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaListenerConfig.class);
 
-    // ✅ Direct @Value injection — KafkaProperties null issue bypass
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
@@ -35,17 +32,11 @@ public class KafkaListenerConfig {
     @Value("${spring.kafka.consumer.auto-offset-reset:earliest}")
     private String autoOffsetReset;
 
-    @Value("${spring.kafka.properties.security.protocol:PLAINTEXT}")
-    private String securityProtocol;
+    @Value("${KAFKA_SASL_USERNAME:avnadmin}")
+    private String saslUsername;
 
-    @Value("${spring.kafka.properties.ssl.ca.cert:}")
-    private String caCert;
-
-    @Value("${spring.kafka.properties.ssl.access.cert:}")
-    private String accessCert;
-
-    @Value("${spring.kafka.properties.ssl.access.key:}")
-    private String accessKey;
+    @Value("${KAFKA_SASL_PASSWORD:}")
+    private String saslPassword;
 
     @PostConstruct
     public void init() {
@@ -53,12 +44,13 @@ public class KafkaListenerConfig {
         log.info("   Bootstrap Servers : {}", bootstrapServers);
         log.info("   Consumer Group    : {}", groupId);
         log.info("   Auto Offset Reset : {}", autoOffsetReset);
-        log.info("   Security Protocol : {}", securityProtocol);
+        log.info("   SASL Username     : {}", saslUsername);
     }
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
+
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
@@ -67,24 +59,19 @@ public class KafkaListenerConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
 
-        // ✅ SSL config for Aiven Kafka
-        if ("SSL".equalsIgnoreCase(securityProtocol)) {
-            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-            props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "PEM");
-            props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PEM");
+        // Aiven Kafka - SASL_SSL (no certificates needed)
+        if (!saslPassword.isBlank()) {
+            String jaasConfig = "org.apache.kafka.common.security.scram.ScramLoginModule required "
+                    + "username=\"" + saslUsername + "\" "
+                    + "password=\"" + saslPassword + "\";";
 
-            if (!caCert.isBlank()) {
-                props.put(SslConfigs.SSL_TRUSTSTORE_CERTIFICATES_CONFIG, caCert.trim());
-            }
-            if (!accessCert.isBlank()) {
-                props.put(SslConfigs.SSL_KEYSTORE_CERTIFICATE_CHAIN_CONFIG, accessCert.trim());
-            }
-            if (!accessKey.isBlank()) {
-                props.put(SslConfigs.SSL_KEYSTORE_KEY_CONFIG, accessKey.trim());
-            }
-            log.info("   SSL              : ENABLED (Aiven mTLS)");
+            props.put("security.protocol", "SASL_SSL");
+            props.put("sasl.mechanism", "SCRAM-SHA-256");
+            props.put("sasl.jaas.config", jaasConfig);
+            props.put("ssl.endpoint.identification.algorithm", "");
+            log.info("   Security         : SASL_SSL (Aiven)");
         } else {
-            log.info("   SSL              : DISABLED");
+            log.info("   Security         : PLAINTEXT (local)");
         }
 
         return new DefaultKafkaConsumerFactory<>(props);
