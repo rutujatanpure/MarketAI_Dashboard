@@ -1,33 +1,26 @@
 spring:
   application:
     name: market-dashboard
-
   task:
     scheduling:
       enabled: true
-
   data:
     mongodb:
       uri: ${MONGODB_URI}
       auto-index-creation: false
-
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       ssl:
         enabled: ${REDIS_SSL:false}
-
- kafka:  
+  kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka-56d55c7-ritujatanpure-ee27.h.aivencloud.com:14880}
-
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:market-group}
       auto-offset-reset: earliest
-
     producer:
       acks: all
-
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: SCRAM-SHA-256
@@ -36,13 +29,11 @@ spring:
         username="${KAFKA_SASL_USERNAME:avnadmin}"
         password="${KAFKA_SASL_PASSWORD:}";
       ssl.endpoint.identification.algorithm: ""
-
-    topics:  
+    topics:
       crypto-prices: crypto-prices-topic
       stock-prices: stock-prices-topic
       ai-analysis: ai-analysis-topic
       anomaly-alerts: anomaly-alerts-topic
-
   mail:
     host: smtp.gmail.com
     port: 587
