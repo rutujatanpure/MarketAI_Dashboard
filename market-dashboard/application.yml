@@ -20,16 +20,19 @@ spring:
         enabled: ${REDIS_SSL:true}
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:market-group}
       auto-offset-reset: earliest
     producer:
       acks: all
     properties:
-      security.protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
-      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
-      sasl.jaas.config: ${KAFKA_SASL_JAAS:}
+      security.protocol: SSL
+      ssl.truststore.type: PEM
+      ssl.keystore.type: PEM
+      ssl.ca.cert: ${KAFKA_CA_CERT}
+      ssl.access.cert: ${KAFKA_ACCESS_CERT}
+      ssl.access.key: ${KAFKA_ACCESS_KEY}
 
   mail:
     host: smtp.gmail.com
