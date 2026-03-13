@@ -17,7 +17,8 @@ spring:
       password: ${REDIS_PASSWORD:}
       ssl:
         enabled: ${REDIS_SSL:false}
-kafka:
+
+  kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka-56d55c7-ritujatanpure-ee27.h.aivencloud.com:14880}
 
     consumer:
@@ -36,7 +37,7 @@ kafka:
         password="${KAFKA_SASL_PASSWORD:}";
       ssl.endpoint.identification.algorithm: ""
 
-    topics:                     # ← topics ठीक जगह पर
+    topics:
       crypto-prices: crypto-prices-topic
       stock-prices: stock-prices-topic
       ai-analysis: ai-analysis-topic
