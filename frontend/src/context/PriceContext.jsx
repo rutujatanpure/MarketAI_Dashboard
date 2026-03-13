@@ -6,8 +6,7 @@ import { apiService } from '../services/apiService'
 
 const PriceContext = createContext(null)
 
-const WS_URL = import.meta.env.VITE_WS_URL
-
+const WS_URL = import.meta.env.VITE_WS_URL || 'https://marketai-dashboard-3.onrender.com/ws'
 export function PriceProvider({ children }) {
   const { getToken, isAuth }     = useAuth()
   const [cryptoPrices, setCryptoPrices] = useState({})   // { BTCUSDT: { price, priceChange, high24h, low24h, volume, timestamp } }
