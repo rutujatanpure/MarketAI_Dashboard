@@ -28,8 +28,10 @@ spring:
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: SCRAM-SHA-256
-      sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${KAFKA_SASL_USERNAME:avnadmin}\" password=\"${KAFKA_SASL_PASSWORD:}\";
-"
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.scram.ScramLoginModule required
+        username="${KAFKA_SASL_USERNAME:avnadmin}"
+        password="${KAFKA_SASL_PASSWORD}";
       ssl.endpoint.identification.algorithm: ""
 
   mail:
@@ -46,12 +48,6 @@ spring:
       mail.smtp.writetimeout: 5000
 
 kafka:
-  bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
-  consumer:
-    group-id: ${KAFKA_CONSUMER_GROUP:market-group}
-    auto-offset-reset: earliest
-  producer:
-    acks: all
   topics:
     crypto-prices: crypto-prices-topic
     stock-prices: stock-prices-topic
