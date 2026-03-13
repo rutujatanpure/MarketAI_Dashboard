@@ -18,7 +18,7 @@ spring:
       ssl:
         enabled: ${REDIS_SSL:false}
 kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka-56d55c7-ritujatanpure-ee27.h.aivencloud.com:14880}
 
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:market-group}
@@ -36,11 +36,11 @@ kafka:
         password="${KAFKA_SASL_PASSWORD:}";
       ssl.endpoint.identification.algorithm: ""
 
-topics:
-  crypto-prices: crypto-prices-topic
-  stock-prices: stock-prices-topic
-  ai-analysis: ai-analysis-topic
-  anomaly-alerts: anomaly-alerts-topic
+    topics:                     # ← topics ठीक जगह पर
+      crypto-prices: crypto-prices-topic
+      stock-prices: stock-prices-topic
+      ai-analysis: ai-analysis-topic
+      anomaly-alerts: anomaly-alerts-topic
 
   mail:
     host: smtp.gmail.com
