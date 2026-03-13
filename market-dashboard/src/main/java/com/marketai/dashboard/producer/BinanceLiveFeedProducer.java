@@ -33,8 +33,8 @@ public class BinanceLiveFeedProducer {
             "wss://stream.binance.com:9443/stream?streams=" +
                     "btcusdt@ticker/ethusdt@ticker/solusdt@ticker/bnbusdt@ticker/xrpusdt@ticker";
 
-    @Value("${kafka.topics.crypto-prices}")
-    private String cryptoTopic;
+   @Value("${spring.kafka.topics.crypto-prices}")
+   private String cryptoTopic;
 
     @Value("${binance.reconnect-delay-ms:3000}")
     private long reconnectDelayMs;
