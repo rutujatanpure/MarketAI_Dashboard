@@ -25,7 +25,7 @@ public class CryptoPriceProducer {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoPriceProducer.class);
 
-    @Value("${kafka.topics.crypto-prices}")
+   @Value("${spring.kafka.topics.crypto-prices}")
     private String cryptoTopic;
 
     private final KafkaTemplate<String, String> kafkaTemplate;
