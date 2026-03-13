@@ -47,6 +47,13 @@ spring:
       mail.smtp.timeout: 5000
       mail.smtp.writetimeout: 5000
 
+kafka:
+  topics:
+    crypto-prices: crypto-prices-topic
+    stock-prices: stock-prices-topic
+    ai-analysis: ai-analysis-topic
+    anomaly-alerts: anomaly-alerts-topic
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:3600000}
