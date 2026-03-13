@@ -1,4 +1,3 @@
-
 spring:
   application:
     name: market-dashboard
@@ -17,22 +16,21 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       ssl:
-        enabled: ${REDIS_SSL:true}
+        enabled: ${REDIS_SSL:false}
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:market-group}
       auto-offset-reset: earliest
     producer:
       acks: all
     properties:
-      security.protocol: SSL
-      ssl.truststore.type: PEM
-      ssl.keystore.type: PEM
-      ssl.ca.cert: ${KAFKA_CA_CERT}
-      ssl.access.cert: ${KAFKA_ACCESS_CERT}
-      ssl.access.key: ${KAFKA_ACCESS_KEY}
+      security.protocol: SASL_SSL
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${KAFKA_SASL_USERNAME:avnadmin}\" password=\"${KAFKA_SASL_PASSWORD:}\";
+"
+      ssl.endpoint.identification.algorithm: ""
 
   mail:
     host: smtp.gmail.com
@@ -55,12 +53,12 @@ kafka:
     auto-offset-reset: earliest
   producer:
     acks: all
- kafka:
   topics:
     crypto-prices: crypto-prices-topic
     stock-prices: stock-prices-topic
     ai-analysis: ai-analysis-topic
     anomaly-alerts: anomaly-alerts-topic
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:3600000}
