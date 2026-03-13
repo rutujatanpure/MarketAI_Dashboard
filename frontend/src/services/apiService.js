@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 // Fixed
-const BASE_URL = import.meta.env.VITE_API_URL
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://marketai-dashboard-3.onrender.com'
 
 export const apiService = axios.create({ baseURL: BASE_URL, timeout: 15000 })
 
