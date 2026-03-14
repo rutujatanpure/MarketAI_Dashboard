@@ -57,7 +57,7 @@ public class KafkaListenerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
 
         // Aiven Kafka - SASL_SSL (no certificates needed)
         if (!saslPassword.isBlank()) {
@@ -86,7 +86,7 @@ public class KafkaListenerConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setConcurrency(3);
         factory.setCommonErrorHandler(
-                new DefaultErrorHandler(new FixedBackOff(2000L, 3)));
+                new DefaultErrorHandler(new FixedBackOff(2000L, 1)));
         return factory;
     }
 }
