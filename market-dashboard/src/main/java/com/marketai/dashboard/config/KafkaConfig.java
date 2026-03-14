@@ -18,7 +18,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic cryptoPricesTopic() {
         return TopicBuilder.name(kafkaProperties.getTopics().get("crypto-prices"))
-                .partitions(3)
+                .partitions(1)
                 .replicas(1)
                 .build();
     }
@@ -26,7 +26,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic stockPricesTopic() {
         return TopicBuilder.name(kafkaProperties.getTopics().get("stock-prices"))
-                .partitions(3)
+                .partitions(1)
                 .replicas(1)
                 .build();
     }
