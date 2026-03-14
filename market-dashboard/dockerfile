@@ -22,5 +22,13 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-# JVM tuning for containers
-ENTRYPOINT ["java","-XX:+UseContainerSupport","-XX:MaxRAMPercentage=75.0","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar"]
+# ✅ Memory tuned for Render free tier (512MB RAM)
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=60.0", \
+  "-Xss512k", \
+  "-XX:MaxMetaspaceSize=128m", \
+  "-XX:+UseG1GC", \
+  "-XX:G1HeapRegionSize=4m", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]
