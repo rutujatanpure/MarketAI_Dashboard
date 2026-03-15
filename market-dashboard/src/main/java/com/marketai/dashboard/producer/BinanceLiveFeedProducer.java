@@ -110,7 +110,7 @@ public class BinanceLiveFeedProducer {
                 event.setTimestamp(Instant.now());
 
                 // ✅ Seedha WebSocket pe push — Kafka bypass
-                wsController.broadcastPrice(event);
+                wsController.broadcastCryptoPrice(event);
                 count++;
             }
 
