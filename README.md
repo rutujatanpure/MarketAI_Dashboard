@@ -1,21 +1,6 @@
 # 📈 MarketAI — Real-Time Crypto & Stock Intelligence Platform
 
-<div align="center">
-
-![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot_3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
-
-A production-grade financial intelligence dashboard with live Binance WebSocket data, statistical anomaly detection, AI-powered market analysis, and real-time alerts.
-
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Docs](#-api-reference) • [Deployment](#-deployment)
-
-</div>
-
----
+Deployment Link :https://market-ai-dashboard.vercel.app/
 
 ## 🖥️ Screenshots
 
