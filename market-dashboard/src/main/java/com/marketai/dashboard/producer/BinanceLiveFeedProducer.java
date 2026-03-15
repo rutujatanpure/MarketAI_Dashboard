@@ -2,13 +2,12 @@ package com.marketai.dashboard.producer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marketai.dashboard.controller.WebSocketController;
 import com.marketai.dashboard.model.CryptoPriceEvent;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,23 +20,18 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * CoinGecko REST API — replaces Binance WebSocket
- * Binance returns HTTP 451 (legal block) on Render India region.
- * CoinGecko free tier: no auth needed, works everywhere.
+ * CoinGecko REST API — NO Kafka (saves ~150MB RAM on free tier)
+ * Pushes directly to WebSocket.
  */
 @Component
 public class BinanceLiveFeedProducer {
 
     private static final Logger log = LoggerFactory.getLogger(BinanceLiveFeedProducer.class);
 
-    @Value("${kafka.topics.crypto-prices:crypto-prices-topic}")
-    private String cryptoTopic;
-
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final WebSocketController wsController;
     private final ObjectMapper mapper;
     private HttpClient httpClient;
 
-    // CoinGecko ID → Binance-style symbol (same as before)
     private static final Map<String, String> COINGECKO_SYMBOLS = Map.of(
             "bitcoin",     "BTCUSDT",
             "ethereum",    "ETHUSDT",
@@ -46,9 +40,8 @@ public class BinanceLiveFeedProducer {
             "ripple",      "XRPUSDT"
     );
 
-    public BinanceLiveFeedProducer(KafkaTemplate<String, String> kafkaTemplate,
-                                   ObjectMapper mapper) {
-        this.kafkaTemplate = kafkaTemplate;
+    public BinanceLiveFeedProducer(WebSocketController wsController, ObjectMapper mapper) {
+        this.wsController = wsController;
         this.mapper = mapper;
     }
 
@@ -57,15 +50,10 @@ public class BinanceLiveFeedProducer {
         httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
-        log.info("════════════════════════════════════════════════");
-        log.info("📈 CoinGecko Producer started (Binance blocked in India)");
-        log.info("   Symbols : BTC, ETH, SOL, BNB, XRP");
-        log.info("   Interval: every 15s");
-        log.info("   Topic   : {}", cryptoTopic);
-        log.info("════════════════════════════════════════════════");
+        log.info("📈 CoinGecko Producer started — direct WebSocket push (no Kafka)");
     }
 
-    @Scheduled(fixedDelay = 15_000, initialDelay = 3_000)
+    @Scheduled(fixedDelay = 20_000, initialDelay = 5_000)
     public void fetchCryptoPrices() {
         try {
             String ids = String.join(",", COINGECKO_SYMBOLS.keySet());
@@ -87,13 +75,10 @@ public class BinanceLiveFeedProducer {
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
 
             if (resp.statusCode() == 429) {
-                log.warn("⚠️ CoinGecko rate limited — skipping this cycle");
+                log.warn("⚠️ CoinGecko rate limited");
                 return;
             }
-            if (resp.statusCode() != 200) {
-                log.warn("⚠️ CoinGecko status: {}", resp.statusCode());
-                return;
-            }
+            if (resp.statusCode() != 200) return;
 
             JsonNode root = mapper.readTree(resp.body());
             int count = 0;
@@ -109,11 +94,9 @@ public class BinanceLiveFeedProducer {
                 double vol24h    = data.path("usd_24h_vol").asDouble();
                 double high24h   = data.path("usd_24h_high").asDouble(price);
                 double low24h    = data.path("usd_24h_low").asDouble(price);
-                double openPrice = price / (1 + change24h / 100);
 
                 if (price <= 0) continue;
 
-                // ✅ CryptoPriceEvent — same model as before
                 CryptoPriceEvent event = new CryptoPriceEvent();
                 event.setSymbol(symbol);
                 event.setType("crypto");
@@ -122,20 +105,16 @@ public class BinanceLiveFeedProducer {
                 event.setVolume(vol24h);
                 event.setHigh24h(high24h);
                 event.setLow24h(low24h);
-                event.setOpenPrice(openPrice);
+                event.setOpenPrice(price / (1 + change24h / 100));
                 event.setTradeCount(0L);
                 event.setTimestamp(Instant.now());
 
-                String json = mapper.writeValueAsString(event);
-                kafkaTemplate.send(cryptoTopic, symbol, json)
-                        .whenComplete((result, ex) -> {
-                            if (ex != null) log.error("❌ Kafka send failed for {}: {}", symbol, ex.getMessage());
-                            else log.debug("📊 {} @ ${} → Kafka", symbol, String.format("%.2f", price));
-                        });
+                // ✅ Seedha WebSocket pe push — Kafka bypass
+                wsController.broadcastPrice(event);
                 count++;
             }
 
-            log.info("📊 CoinGecko: {} crypto prices fetched ✅", count);
+            log.info("📊 CoinGecko: {} prices → WebSocket ✅", count);
 
         } catch (Exception e) {
             log.error("❌ CoinGecko fetch failed: {}", e.getMessage());
