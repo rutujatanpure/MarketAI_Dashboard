@@ -53,7 +53,7 @@ public class BinanceLiveFeedProducer {
         log.info("📈 CoinGecko Producer started — direct WebSocket push (no Kafka)");
     }
 
-    @Scheduled(fixedDelay = 20_000, initialDelay = 5_000)
+    @Scheduled(fixedDelay = 60_000, initialDelay = 5_000)
     public void fetchCryptoPrices() {
         try {
             String ids = String.join(",", COINGECKO_SYMBOLS.keySet());
